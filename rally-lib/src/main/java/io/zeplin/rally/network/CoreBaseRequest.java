@@ -106,8 +106,6 @@ public abstract class CoreBaseRequest<T> {
         };
     }
 
-    protected abstract String servicePath();
-
     /**
      * @return whole path of the URL
      */

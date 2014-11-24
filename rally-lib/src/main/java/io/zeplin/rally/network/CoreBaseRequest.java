@@ -20,12 +20,14 @@ import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.google.gson.FieldNamingStrategy;
+import com.google.gson.GsonBuilder;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public abstract class CoreBaseRequest<T> {
     private CoreGsonRequest<T> mCoreGsonRequest;
-
+    protected Map<String, String> mRequestParams = new HashMap<String, String>();
     /**
      * @return base url of the server
      */
@@ -50,7 +52,9 @@ public abstract class CoreBaseRequest<T> {
     /**
      * @return body of the action
      */
-    protected abstract String body();
+    protected String body() {
+        return new GsonBuilder().create().toJson(mRequestParams);
+    }
 
     /**
      * @return headers, unless any authorization is needed
@@ -106,7 +110,21 @@ public abstract class CoreBaseRequest<T> {
      * @return whole path of the URL
      */
     private String requestUrl() {
-        return baseUrl() + path();
+
+        String requestUrl = baseUrl() + path();
+
+        if(httpMethod() == Request.Method.GET) {
+            int cnt =0;
+            for(String key:mRequestParams.keySet()) {
+                if(cnt++ ==0 ) {
+                    requestUrl +="?";
+                } else {
+                    requestUrl += "&";
+                }
+                requestUrl = requestUrl.concat(key).concat("=").concat(mRequestParams.get(key));
+            }
+        }
+        return requestUrl;
     }
 
     /**
